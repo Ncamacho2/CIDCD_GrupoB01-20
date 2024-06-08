@@ -16,7 +16,9 @@ services:
       - mynetwork
 
   springboot:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: proyecto_ci
     depends_on:
       - postgres
@@ -28,7 +30,23 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - mynetwork
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_container
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
     driver: bridge
+volumes:
+  jenkins_home:
